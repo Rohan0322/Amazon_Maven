@@ -33,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Buildd') {
             steps {
                 dir('Amazon') {
                     sh 'mvn package'
