@@ -1,4 +1,44 @@
-Adding a feature
-Adding feature 2..
-Adding changes for windows
-Adding changes for 4 Tomcats
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                git branch: 'master', url: 'https://github.com/Rohan0322/Amazon_Maven.git'
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                dir('Amazon') {
+                    sh 'ls -l'
+                    sh 'mvn validate'
+                }
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                dir('Amazon') {
+                    sh 'mvn compile'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('Amazon') {
+                    sh 'mvn test'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('Amazon') {
+                    sh 'mvn package'
+                }
+            }
+        }
+    }
+}
