@@ -17,7 +17,7 @@ pipeline {
             }
         }
 
-        stage('Compile') {
+        stage('Compileee') {
             steps {
                 dir('Amazon') {
                     sh 'mvn compile'
