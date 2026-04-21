@@ -1,0 +1,157 @@
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  imageName: 'myapp'
+  acrName: 'myacr.azurecr.io'
+  tag: '$(Build.BuildId)'
+
+stages:
+
+# =========================
+# 1 & 2: FETCH + SONARQUBE
+# =========================
+- stage: SonarQube
+  displayName: "Code Analysis"
+  jobs:
+    - job: SonarAnalysis
+      pool:
+        name: 'MyFirstPool'
+
+      steps:
+        - checkout: self
+
+        - task: SonarQubePrepare@5
+          inputs:
+            SonarQube: 'SonarConnection'
+            scannerMode: 'Other'
+            extraProperties: |
+              sonar.projectKey=my-app
+              sonar.projectName=My App
+              sonar.host.url=http://<VM-IP>:9000
+
+        - task: Maven@3
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'clean verify sonar:sonar'
+            options: '-Dsonar.login=$(SONAR_TOKEN)'
+
+        - task: SonarQubeAnalyze@5
+
+        - task: SonarQubePublish@5
+          inputs:
+            pollingTimeoutSec: '300'
+
+# =========================
+# 3: MAVEN BUILD + ARTIFACT
+# =========================
+- stage: Build
+  displayName: "Build & Artifact"
+  dependsOn: SonarQube
+  jobs:
+    - job: MavenBuild
+      pool:
+        name: 'MyFirstPool'
+
+      steps:
+        - checkout: self
+
+        - task: Maven@3
+          inputs:
+            mavenPomFile: 'pom.xml'
+            goals: 'clean package'
+            publishJUnitResults: true
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            pathToPublish: 'target'
+            artifactName: 'drop'
+
+# =========================
+# 4: DOCKER BUILD
+# =========================
+- stage: DockerBuild
+  displayName: "Build Docker Image"
+  dependsOn: Build
+  jobs:
+    - job: DockerBuildJob
+      pool:
+        name: 'MyFirstPool'
+
+      steps:
+        - checkout: self
+
+        - task: Docker@2
+          inputs:
+            containerRegistry: 'ACR-ServiceConnection'
+            repository: '$(imageName)'
+            command: 'build'
+            Dockerfile: '**/Dockerfile'
+            tags: |
+              $(tag)
+
+# =========================
+# 5: PUSH TO ACR
+# =========================
+- stage: Push
+  displayName: "Push to ACR"
+  dependsOn: DockerBuild
+  jobs:
+    - job: PushJob
+      pool:
+        name: 'MyFirstPool'
+        
+
+      steps:
+        - task: Docker@2
+          inputs:
+            containerRegistry: 'ACR-ServiceConnection'
+            repository: '$(imageName)'
+            command: 'push'
+            tags: |
+              $(tag)
+
+# =========================
+# 6: TRIVY SCAN
+# =========================
+- stage: SecurityScan
+  displayName: "Trivy Scan"
+  dependsOn: Push
+  jobs:
+    - job: TrivyScan
+      pool:
+        name: 'MyFirstPool'
+        
+
+      steps:
+        - script: |
+            wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.0_Linux-64bit.tar.gz
+            tar zxvf trivy*.tar.gz
+            sudo mv trivy /usr/local/bin/
+
+            trivy image --exit-code 0 --severity HIGH,CRITICAL $(acrName)/$(imageName):$(tag)
+          displayName: "Scan Docker Image"
+
+# =========================
+# 7: DEPLOY TO AKS
+# =========================
+- stage: Deploy
+  displayName: "Deploy to AKS"
+  dependsOn: SecurityScan
+  jobs:
+    - job: DeployJob
+      pool:
+        name: 'MyFirstPool'
+
+
+      steps:
+        - task: Kubernetes@1
+          inputs:
+            connectionType: 'Kubernetes Service Connection'
+            kubernetesServiceEndpoint: 'AKS'
+            namespace: default
+            command: apply
+            useConfigurationFile: true
+            configuration: 'k8s/deployment.yaml'
