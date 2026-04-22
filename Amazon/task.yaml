@@ -47,13 +47,13 @@ stages:
 
         - task: Maven@3
           inputs:
-            mavenPomFile: 'pom.xml'
+            mavenPomFile: 'Amazon/pom.xml'
             goals: 'clean package'
             publishJUnitResults: true
 
         - task: PublishBuildArtifacts@1
           inputs:
-            pathToPublish: 'target'
+            pathToPublish: 'Amazon/target'
             artifactName: 'drop'
 
 # =========================
