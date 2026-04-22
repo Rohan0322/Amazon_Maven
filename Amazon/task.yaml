@@ -38,7 +38,7 @@ stages:
             goals: 'clean verify sonar:sonar'
             options: '-Dsonar.login=$(SONAR_TOKEN)'
 
-        - task: SonarQubeRunAnalyze@7
+        - task: SonarQubeRunAnalysis@7
 
         - task: SonarQubePublish@7
           inputs:
