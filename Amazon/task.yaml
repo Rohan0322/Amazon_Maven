@@ -89,7 +89,7 @@ stages:
           displayName: "Check Images"
 
         - script: |
-            docker save $(acrName)/$(imageName):$(tag) -o image.tar
+            docker save $(imageName):$(tag) -o image.tar
           displayName: "Save Docker Image"
 
         - task: PublishBuildArtifacts@1
