@@ -18,7 +18,7 @@ stages:
   jobs:
     - job: SonarAnalysis
       pool:
-        name: 'MyFirstPool'
+        name: 'Default'
 
       steps:
         - checkout: self
@@ -39,7 +39,7 @@ stages:
   jobs:
     - job: MavenBuild
       pool:
-        name: 'MyFirstPool'
+        name: 'Default'
 
       steps:
         - checkout: self
@@ -64,7 +64,7 @@ stages:
   jobs:
     - job: DockerBuildJob
       pool:
-        name: 'MyFirstPool'
+        name: 'Default'
 
       steps:
         - checkout: self
@@ -87,9 +87,8 @@ stages:
   jobs:
     - job: PushJob
       pool:
-        name: 'MyFirstPool'
+        name: 'Default'
         
-
       steps:
         - task: Docker@2
           inputs:
@@ -108,9 +107,9 @@ stages:
   jobs:
     - job: TrivyScan
       pool:
-        name: 'MyFirstPool'
+        name: 'Default'
         
-
+      
       steps:
         - script: |
             wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.0_Linux-64bit.tar.gz
@@ -129,9 +128,8 @@ stages:
   jobs:
     - job: DeployJob
       pool:
-        name: 'MyFirstPool'
-
-
+        name: 'Default'
+        
       steps:
         - task: Kubernetes@1
           inputs:
