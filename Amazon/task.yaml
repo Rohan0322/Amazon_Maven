@@ -121,10 +121,23 @@ stages:
           artifact: docker-image
 
         - script: |
+            echo "Loading image..."
             docker load -i $(Pipeline.Workspace)/docker-image/image.tar
-          displayName: "Load Docker Image"
+
+            echo "==== DOCKER IMAGES AFTER LOAD ===="
+            docker images
+
+            IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep myapp | head -n 1)
+            echo "Found image: $IMAGE"
+
+            docker tag $IMAGE $(acrName)/$(imageName):$(tag)
+
+            echo "==== AFTER TAGGING ===="
+            docker images
+          displayName: "Load + Tag Image"
 
         - task: Docker@2
+          displayName: "Push to ACR"
           inputs:
             containerRegistry: 'ACR'
             repository: '$(imageName)'
