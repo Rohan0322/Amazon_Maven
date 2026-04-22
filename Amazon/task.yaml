@@ -165,15 +165,31 @@ stages:
 # =========================
 # 7: DEPLOY TO AKS
 # =========================
+
+
 - stage: Deploy
   displayName: "Deploy to AKS"
   dependsOn: SecurityScan
+
   jobs:
     - job: DeployJob
       pool:
         name: 'Default'
-        
+
       steps:
+        - checkout: self 
+
+    
+        - script: |
+            sed -i 's|IMAGE_TAG|$(Build.BuildId)|g' Amazon/k8s/deployment.yaml
+          displayName: "Update Image Tag"
+
+        
+        - script: |
+            echo "==== UPDATED YAML ===="
+            cat Amazon/k8s/deployment.yaml
+          displayName: "Verify Deployment YAML"
+
         - task: Kubernetes@1
           inputs:
             connectionType: 'Kubernetes Service Connection'
@@ -181,4 +197,4 @@ stages:
             namespace: default
             command: apply
             useConfigurationFile: true
-            configuration: 'k8s/deployment.yaml'
+            configuration: 'Amazon/k8s/deployment.yaml'
