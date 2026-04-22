@@ -84,7 +84,7 @@ stages:
               $(tag)
 
         - script: |
-            docker save $(imageName):$(tag) -o image.tar
+            docker save $(acrName)/$(imageName):$(tag) -o image.tar
           displayName: "Save Docker Image"
 
         - task: PublishBuildArtifacts@1
