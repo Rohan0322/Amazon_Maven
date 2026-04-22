@@ -187,7 +187,7 @@ stages:
         
         - script: |
             echo "==== UPDATED YAML ===="
-            cat Amazon/k8s/deployment.yaml
+            cat Amazon/K8s/deployment.yaml
           displayName: "Verify Deployment YAML"
 
         - task: Kubernetes@1
