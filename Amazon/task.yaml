@@ -181,7 +181,7 @@ stages:
 
     
         - script: |
-            sed -i 's|IMAGE_TAG|$(Build.BuildId)|g' Amazon/k8s/deployment.yaml
+            sed -i 's|IMAGE_TAG|$(Build.BuildId)|g' Amazon/K8s/deployment.yaml
           displayName: "Update Image Tag"
 
         
