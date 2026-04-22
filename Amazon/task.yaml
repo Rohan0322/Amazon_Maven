@@ -28,7 +28,7 @@ stages:
             mvn clean verify sonar:sonar \
               -Dsonar.projectKey=my-app \
               -Dsonar.host.url=http://4.155.39.53:9000 \
-              -Dsonar.login=$(SONAR_TOKEN)
+              -Dsonar.login=sqa_9d6b3f1d8d52f545d3c3d6d46a7674709f08d955
           displayName: "Run SonarQube Scan"
 
 # =========================
