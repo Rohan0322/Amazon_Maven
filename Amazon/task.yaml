@@ -64,6 +64,7 @@ stages:
 - stage: DockerBuild
   displayName: "Build Docker Image"
   dependsOn: Build
+
   jobs:
     - job: DockerBuildJob
       pool:
@@ -72,20 +73,24 @@ stages:
       steps:
         - checkout: self
 
-        - script: |
-           echo "==== DEBUG FILES ===="
-           pwd
-           ls -R
-          displayName: "Debug WAR location"
-
         - task: Docker@2
           inputs:
             containerRegistry: 'ACR'
             repository: '$(imageName)'
             command: 'build'
-            Dockerfile: '**/Dockerfile'
+            Dockerfile: 'Amazon/Dockerfile'
+            buildContext: '$(Build.SourcesDirectory)/Amazon'
             tags: |
               $(tag)
+
+        - script: |
+            docker save $(imageName):$(tag) -o image.tar
+          displayName: "Save Docker Image"
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            pathToPublish: 'image.tar'
+            artifactName: 'docker-image'
 
 # =========================
 # 5: PUSH TO ACR
@@ -93,12 +98,20 @@ stages:
 - stage: Push
   displayName: "Push to ACR"
   dependsOn: DockerBuild
+
   jobs:
     - job: PushJob
       pool:
         name: 'Default'
-        
+
       steps:
+        - download: current
+          artifact: docker-image
+
+        - script: |
+            docker load -i $(Pipeline.Workspace)/docker-image/image.tar
+          displayName: "Load Docker Image"
+
         - task: Docker@2
           inputs:
             containerRegistry: 'ACR'
