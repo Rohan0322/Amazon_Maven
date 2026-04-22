@@ -59,6 +59,12 @@ stages:
 # =========================
 # 4: DOCKER BUILD
 # =========================
+- script: |
+    echo "==== DEBUG FILES ===="
+    pwd
+    ls -R
+  displayName: "Debug WAR location"
+
 - stage: DockerBuild
   displayName: "Build Docker Image"
   dependsOn: Build
