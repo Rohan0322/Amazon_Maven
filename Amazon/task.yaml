@@ -59,11 +59,7 @@ stages:
 # =========================
 # 4: DOCKER BUILD
 # =========================
-- script: |
-    echo "==== DEBUG FILES ===="
-    pwd
-    ls -R
-  displayName: "Debug WAR location"
+
 
 - stage: DockerBuild
   displayName: "Build Docker Image"
@@ -75,6 +71,12 @@ stages:
 
       steps:
         - checkout: self
+
+        - script: |
+           echo "==== DEBUG FILES ===="
+           pwd
+           ls -R
+          displayName: "Debug WAR location"
 
         - task: Docker@2
           inputs:
