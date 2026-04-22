@@ -23,7 +23,7 @@ stages:
       steps:
         - checkout: self
 
-        - task: SonarQubePrepare@6
+        - task: SonarQubePrepare@7
           inputs:
             SonarQube: 'SonarConnection'
             scannerMode: 'Other'
@@ -38,9 +38,9 @@ stages:
             goals: 'clean verify sonar:sonar'
             options: '-Dsonar.login=$(SONAR_TOKEN)'
 
-        - task: SonarQubeAnalyze@6
+        - task: SonarQubeRunAnalyze@7
 
-        - task: SonarQubePublish@6
+        - task: SonarQubePublish@7
           inputs:
             pollingTimeoutSec: '300'
 
