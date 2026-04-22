@@ -121,10 +121,6 @@ stages:
       
       steps:
         - script: |
-            wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.0_Linux-64bit.tar.gz
-            tar zxvf trivy*.tar.gz
-            sudo mv trivy /usr/local/bin/
-
             trivy image --exit-code 0 --severity HIGH,CRITICAL $(acrName)/$(imageName):$(tag)
           displayName: "Scan Docker Image"
 
