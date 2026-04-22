@@ -84,6 +84,15 @@ stages:
               $(tag)
 
         - script: |
+            docker tag $(imageName):$(tag) $(acrName)/$(imageName):$(tag)
+          displayName: "Tag Image for ACR"
+
+        - script: |
+            echo "==== DOCKER IMAGES ===="
+            docker images
+          displayName: "Check Images"
+
+        - script: |
             docker save $(acrName)/$(imageName):$(tag) -o image.tar
           displayName: "Save Docker Image"
 
