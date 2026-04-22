@@ -89,8 +89,15 @@ stages:
           displayName: "Check Images"
 
         - script: |
-            docker save $(imageName):$(tag) -o image.tar
-          displayName: "Save Docker Image"
+            echo "==== FINDING IMAGE ===="
+            docker images
+
+            IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep myapp | head -n 1)
+
+            echo "Found image: $IMAGE"
+
+            docker save $IMAGE -o image.tar
+          displayName: "Save Docker Image (Dynamic)"
 
         - task: PublishBuildArtifacts@1
           inputs:
