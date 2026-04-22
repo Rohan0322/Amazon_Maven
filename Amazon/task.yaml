@@ -18,31 +18,26 @@ stages:
   jobs:
     - job: SonarAnalysis
       pool:
-        name: 'MyFirstPool'
+        name: 'MySelfHostedPool'
 
       steps:
         - checkout: self
 
-        - task: SonarQubePrepare@7
+        # Prepare SonarQube
+        - task: SonarQubePrepare@5
           inputs:
             SonarQube: 'SonarConnection'
             scannerMode: 'Other'
             extraProperties: |
               sonar.projectKey=my-app
               sonar.projectName=My App
-              sonar.host.url=http://<VM-IP>:9000
 
+        # Build + Sonar scan (THIS DOES EVERYTHING)
         - task: Maven@3
           inputs:
             mavenPomFile: 'pom.xml'
             goals: 'clean verify sonar:sonar'
             options: '-Dsonar.login=$(SONAR_TOKEN)'
-
-        - task: SonarQubeRunAnalysis@7
-
-        - task: SonarQubePublish@7
-          inputs:
-            pollingTimeoutSec: '300'
 
 # =========================
 # 3: MAVEN BUILD + ARTIFACT
