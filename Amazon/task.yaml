@@ -92,7 +92,7 @@ stages:
       steps:
         - task: Docker@2
           inputs:
-            containerRegistry: 'ACR-ServiceConnection'
+            containerRegistry: 'ACR'
             repository: '$(imageName)'
             command: 'push'
             tags: |
